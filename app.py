@@ -12,7 +12,6 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from rembg import remove  # Ensure you have this import at the top
 import logging
-from utils import safe_makedirs
 
 
 from flask import (Flask, redirect, render_template, request,
@@ -39,6 +38,26 @@ try:
 except Exception as e:
     logging.error(f"Failed to initialize OpenAI client: {str(e)}")
     client = None
+    
+    
+def safe_makedirs(path, mode=0o777, exist_ok=True):
+    """
+    Create a directory if it doesn't exist, with enhanced error handling and logging.
+
+    :param path: The directory path to create.
+    :param mode: The mode (permissions) to set for the directory.
+    :param exist_ok: If True, do not raise an exception if the directory already exists.
+    """
+    try:
+        os.makedirs(path, mode=mode, exist_ok=exist_ok)
+        logging.info(f"Directory created: {path}")
+    except OSError as e:
+        if not os.path.isdir(path):
+            logging.error(f"Failed to create directory: {path}. Error: {e}")
+            raise
+        else:
+            logging.info(f"Directory already exists: {path}")
+    
 
 @app.route('/')
 def index():
