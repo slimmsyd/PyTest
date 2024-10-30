@@ -27,7 +27,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif',
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "methods": ["GET", "POST", "OPTIONS"]}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 UPLOAD_FOLDER = app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
 
 # Add error handling for OpenAI client initialization
