@@ -341,7 +341,61 @@ def generate_pdf_from_data(pdf_data):
         return output_filepath  # Return the file path as a string
     except Exception as e:
         print(f"Error during PDF generation: {str(e)}")  # Log the error
-        return jsonify({'error': f'Failed to generate PDF: {str(e)}'}), 500        
+        return jsonify({'error': f'Failed to generate PDF: {str(e)}'}), 500       
+    
+    
+ #removing the Background
+ # Function to process images (e.g., upscale, remove background)
+@app.route('/process_image', methods=['POST'])
+def process_image():
+    # Step 1: Log the incoming request files
+    print("Request files:", request.files)  
+    
+    # Step 2: Ensure an image file is provided
+    if 'file' not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
+
+    image_file = request.files['file']
+    if image_file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    # Step 3: Define the output directory
+    output_dir = 'outputImages'
+    safe_makedirs(output_dir)
+
+    # Step 4: Process the image (e.g., save it)
+    try:
+        # Save the original image to the output directory
+        output_path = os.path.join(output_dir, secure_filename(image_file.filename))
+        image_file.save(output_path)
+
+        # Step 5: Remove the background from the image
+        with open(output_path, 'rb') as input_file:
+            input_image = input_file.read()
+            output_image = remove(input_image)  # Remove background
+
+        # Save the processed image with background removed
+        bg_removed_path = os.path.join(output_dir, 'bg_removed_' + secure_filename(image_file.filename))
+        with open(bg_removed_path, 'wb') as output_file:
+            output_file.write(output_image)
+
+        # Step 6: Upscale the image
+        upscaled_image_path = upscale_image(bg_removed_path, scale_factor=3)  # You can adjust the scale factor
+
+        # Step 7: Generate the URL to access the upscaled image
+        upscaled_image_url = url_for('display_image', filename=os.path.basename(upscaled_image_path), _external=True)
+
+        # Step 8: Return the output directory and image URL
+        return jsonify({
+            "message": "Image processed, background removed, and upscaled successfully.",
+            "output_directory": output_dir,
+            "image_url": upscaled_image_url
+        }), 200
+
+    except Exception as e:
+        print(f"Error processing image: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+    
         
 
 @app.route('/favicon.ico')
