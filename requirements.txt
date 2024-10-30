@@ -5,4 +5,4 @@ flask-cors==4.0.0
 werkzeug==3.0.1
 openai==1.12.0
 fpdf==1.7.2
-rembg>=2.0.41,<2.0.55  # Compatible with Python 3.8-3.11
+rembg==2.0.55  # Latest version with broader Python compatibility
