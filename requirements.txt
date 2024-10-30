@@ -1,3 +1,8 @@
-Flask==2.2.2
-gunicorn
-Werkzeug==2.2.2
+Flask==3.0.0
+Pillow==10.2.0
+python-dotenv==1.0.0
+flask-cors==4.0.0
+werkzeug==3.0.1
+openai==1.12.0
+fpdf==1.7.2
+rembg==2.0.54

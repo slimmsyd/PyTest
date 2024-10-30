@@ -1,14 +1,41 @@
 import os
+import os
+import subprocess
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from pathlib import Path
+from PIL import Image
+from fpdf import FPDF
+from openai import OpenAI
+from dotenv import load_dotenv
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
+from rembg import remove  # Ensure you have this import at the top
+import logging
 
 from flask import (Flask, redirect, render_template, request,
                    send_from_directory, url_for)
 
-app = Flask(__name__)
+load_dotenv()
 
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif',
+                          'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'csv', 'zip', 'rar', 'mp4',
+                          'mp3', 'wav', 'avi', 'mkv', 'flv', 'mov', 'wmv'])
+
+
+
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "methods": ["GET", "POST", "OPTIONS"]}})
+UPLOAD_FOLDER = app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 @app.route('/')
 def index():
    print('Request for index page received')
+   if os.getenv('OPENAI_API_KEY'):
+       print(f"OpenAI API Key is available: {os.getenv('OPENAI_API_KEY')}")
+   else:
+       print("OpenAI API Key is not available")
    return render_template('index.html')
 
 @app.route('/favicon.ico')
