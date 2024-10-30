@@ -27,7 +27,16 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif',
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "methods": ["GET", "POST", "OPTIONS"]}})
 UPLOAD_FOLDER = app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+# Add error handling for OpenAI client initialization
+try:
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key:
+        raise ValueError("OpenAI API key not found in environment variables")
+    client = OpenAI(api_key=api_key)
+except Exception as e:
+    logging.error(f"Failed to initialize OpenAI client: {str(e)}")
+    client = None
 
 @app.route('/')
 def index():
@@ -59,7 +68,12 @@ def health_check():
     return "listening"
 
 
+
+
+
+
+
 if __name__ == '__main__':
-   app.run()
+   app.run(debug=True)
    
    
